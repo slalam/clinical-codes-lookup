@@ -91,4 +91,4 @@ flask run
 
 This repository contains the source code for the open-source version of the Clinical Codes Lookup tool, released under the GPL V2 license.
 
-See [LICENCE-GPLv2.md](LICENCE-GPLv2.md) for more details.
+See [LICENSE-GPLv2.md](LICENSE-GPLv2.md) for more details.
