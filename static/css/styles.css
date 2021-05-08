@@ -1,0 +1,29 @@
+nav.navbar {
+    height: 3.5rem !important;
+}
+
+table.center {
+    margin-left:auto; 
+    margin-right:auto;
+}
+
+.hero.is-primary {
+    background-color: #005E63;
+}
+
+.button.is-info {
+    background-color: #00B2B9;
+}
+
+.button.is-info.is-hovered, .button.is-info:hover {
+    background-color: #005E63;
+}
+
+.tabs li.is-active a {
+    border-bottom-color: #005E63;
+    color: #005E63;
+}
+
+.download {
+    padding-bottom: 2rem;
+}

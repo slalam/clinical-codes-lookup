@@ -1,0 +1,11 @@
+# Meilisearch local instance data
+meilisearch/
+
+# Cache directory
+__pycache__/
+
+# Data files
+files/
+
+# SQL script to extract data from EPIC Clarity
+sql_scripts/export_data_from_epic_clarity.sql

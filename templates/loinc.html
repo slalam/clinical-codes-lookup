@@ -1,0 +1,89 @@
+{% extends 'commons.html' %}
+
+{% block content %}
+
+<div class="tabs is-centered">
+    <ul>
+        <li><a href="/">Diagnosis (ICD10-CM)</a></li>
+        <li><a href="/labs">Labs</a></li>
+        <li><a href="/procedures">Procedures (CPT)</a></li>
+        <li><a href="/medications">Medications</a></li>
+        <li><a href="/surgeries">Surgeries</a></li>
+        <li class="is-active"><a href="/loinc">LOINC</a></li>
+        <li><a href="/snomedct">SNOMED-CT</a></li>
+    </ul>
+</div>
+
+
+<section class="section">
+    <div class="container is-max-desktop">
+        <form method="POST" action="/loinc">
+            <div class="field is-grouped">
+                <p class="control is-expanded">
+                    <input class="input box" name="search_string" type="text"
+                        placeholder="Type the description of code">
+                </p>
+                <p class="control">
+                    <button class="button is-info">
+                        Search
+                    </button>
+                </p>
+            </div>
+        </form>
+    </div>
+</section>
+
+
+{% if codes|length > 0 %}
+
+<div class="container is-max-desktop download">
+    <div class="columns">
+        <div class="column is-four-fifths">
+            <form method="POST" action="/export">
+                <input type="hidden" name="query_results" value="{{codes}}">
+                <button class="button is-info">
+                    <span>Download CSV</span>
+                </button>
+            </form>
+        </div>
+        <div class="column">
+            <div class="field is-grouped is-grouped-multiline">
+                <div class="control">
+                    <div class="tags has-addons">
+                        <span class="tag is-dark">{{ hits }} results</span>
+                        <span class="tag is-info">{{ query_time }} ms</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+<div class="table-container">
+    <table class="table center">
+        <thead>
+            <tr>
+                {% for header_item in headers %}
+                {% if header_item != 'id' %}
+                <th>{{ header_item }}</th>
+                {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for dict_item in codes %}
+            <tr>
+                {% for key, value in dict_item.items() %}
+                {% if key != 'id' %}
+                <td>{{value}}</td>
+                {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
