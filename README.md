@@ -4,6 +4,7 @@ Source code repository for Clinical Codes Lookup tool.
 
 The clinical Codes Lookup tool is an efficient search engine and aids the researchers at the University of Nebraska Medical Center (UNMC) to browse various custom coding systems used within the EHR (Electronic Health Record) system and also globally used coding systems such as ICD-10-CM (International Classification of Diseases, Tenth Revision, Clinical Modification), LOINC (Logical Observation Identifiers Names and Codes) and SNOMED-CT (Systematized Nomenclature of Medicine - Clinical Terms)
 
+
 ![](demo.gif)
 
 ## Features
@@ -12,8 +13,6 @@ The clinical Codes Lookup tool is an efficient search engine and aids the resear
 - Blazing fast search (across millions of records)
 - Allows downloading the search results.
 - Displays the access time and number of records matched the search
-
-## Environment Requirements
 
 ## Technology Stack
 1. [Python Flask](https://flask.palletsprojects.com/en/1.1.x/quickstart/#quickstart) (Web Development)
