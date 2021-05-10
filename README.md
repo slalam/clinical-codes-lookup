@@ -23,6 +23,12 @@ The clinical Codes Lookup tool is an efficient search engine and aids the resear
 ## System Architecture
 ![](ccl_system_architecture_diagram.png)
 
+## Data Sources
+1. Datasets for Diagnosis, Labs, Procedures and Medications are extracted from EPIC Clarity and is not available for public use.
+2. LOINC codes(requires registration) - can be downloaded from [loinc.org](https://loinc.org/download/loinc-table-file-csv/)
+3. SNOMED-CT codes(requires registration) - can be downloaded from [National Library of Medicine](https://download.nlm.nih.gov/mlb/utsauth/USExt/SnomedCT_USEditionRF2_PRODUCTION_20200901T120000Z.zip)
+4. ICD-10-CM codes can be used for diagnosis codes and can be downloaded from [CMS(Centers for Medicare & Medicaid Services)](https://www.cms.gov/files/zip/2021-code-descriptions-tabular-order-updated-12162020.zip)
+
 ## Installation
 
 ### MariaDB Setup
