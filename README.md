@@ -20,6 +20,9 @@ The clinical Codes Lookup tool is an efficient search engine and aids the resear
 3. [Meilisearch API](https://docs.meilisearch.com/) (Indexing the records)
 3. [Bulma CSS Framework](https://bulma.io/documentation/) (User Interface Development)
 
+## System Architecture
+![](ccl_system_architecture_diagram.png)
+
 ## Installation
 
 ### MariaDB Setup
