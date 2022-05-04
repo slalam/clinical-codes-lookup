@@ -11,6 +11,7 @@
         <li><a href="/surgeries">Surgeries</a></li>
         <li><a href="/loinc">LOINC</a></li>
         <li class="is-active"><a href="/snomedct">SNOMED-CT</a></li>
+        <li><a href="/biobank">Biobank Samples</a></li>
     </ul>
 </div>
 
@@ -21,7 +22,7 @@
             <div class="field is-grouped">
                 <p class="control is-expanded">
                     <input class="input box" name="search_string" type="text"
-                        placeholder="Type the description of code">
+                    placeholder="Type the description of code" value={{search_string}}>
                 </p>
                 <p class="control">
                     <button class="button is-info">
@@ -42,7 +43,7 @@
             <form method="POST" action="/export">
                 <input type="hidden" name="query_results" value="{{codes}}">
                 <button class="button is-info">
-                    <span>Download CSV</span>
+                    <span>Download</span>
                 </button>
             </form>
         </div>

@@ -6,6 +6,7 @@ __pycache__/
 
 # Data files
 files/
+data.ms/
 
 # SQL script to extract data from EPIC Clarity
 sql_scripts/export_data_from_epic_clarity.sql

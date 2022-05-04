@@ -5,123 +5,125 @@ import MySQLdb
 import flask_excel as excel
 import json
 
+# Create an instance of flask application
+app=Flask(__name__)
+# Initialize excel app
+excel.init_excel(app)
 # Connecting to Meilisearch API as a client with the help of pypi package
 client = meilisearch.Client('http://127.0.0.1:7700', 'masterKey')
-
 
 # Function to generate the meilisearch index by passing the index name
 # and query to add all the documents (records that are needed to be
 # included in search)
 def generate_index(index_name, sql_query):
-
     # Takes the input index name and creates the new index on meilisearch
     codes_index = client.index(index_name)
-
     # Connect to the MySQL database
     conn = MySQLdb.connect(db="clinical_codes")
-
     # Creates a cursor on the connection instance
     cursor = conn.cursor()
-
     # Executes the passed input query
     cursor.execute(sql_query)
-
     # columns names are loaded into row_headers
     row_headers = [x[0] for x in cursor.description]
-
     # Fetches all the results of the query
     rows = cursor.fetchall()
-
     # Initializes the document_array(list) for storing all the results
     document_array = []
-
     # For each row, a dictionary document is created and appended to
     # document_array
     for result in rows:
         document_array.append(dict(zip(row_headers, result)))
-
     # Closing the cursor
     cursor.close()
-
     # Closing the connection
     conn.close()
-
     # All the documents are added to the meilisearch index
     codes_index.add_documents(document_array)
-
     # Returns the meilisearch index
     return codes_index
 
+def get_records(sql_query):
+    # Connect to the MySQL database
+    conn = MySQLdb.connect(db="clinical_codes")
+    # Creates a cursor on the connection instance
+    cursor = conn.cursor()
+    # Executes the passed input query
+    cursor.execute(sql_query)
+    # columns names are loaded into row_headers
+    row_headers = [x[0] for x in cursor.description]
+    # Fetches all the results of the query
+    rows = cursor.fetchall()
+    # Initializes the document_array(list) for storing all the results
+    document_array = []
+    # For each row, a dictionary document is created and appended to
+    # document_array
+    for result in rows:
+        document_array.append(dict(zip(row_headers, result)))
+    return document_array
+
+# SQL query for biobank sample counts
+biobank_sample_counts_query = 'select * from SAMPLE_TYPE_COUNTS'
+# Get the records for biobank sample counts
+biobank_sample_counts = get_records(biobank_sample_counts_query)
 
 # Declare the index name for diagnosis
 diagnosis_index_name = 'diagnosis_codes'
-
 # Declare the SQL query for diagnosis records
 diagnosis_codes_query = 'select * from diagnosis_codes;'
-
 # Call the generate_index function to create the diagnosis index
-diagnosis_codes_index = generate_index(diagnosis_index_name,
-                                       diagnosis_codes_query)
+diagnosis_codes_index = generate_index(diagnosis_index_name, diagnosis_codes_query)
 
 # Declare the index name for lab results
 lab_index_name = 'lab_codes'
-
 # Declare the SQL query for lab records
 lab_codes_query = 'select * from lab_codes;'
-
 # Call the generate_index function to create the lab index
 lab_codes_index = generate_index(lab_index_name, lab_codes_query)
 
 # Declare the index name for medication results
 medication_index_name = 'medication_codes'
-
 # Declare the SQL query for medication records
 medication_codes_query = 'select * from medication_codes;'
-
 # Call the generate_index function to create the medication index
-medication_codes_index = generate_index(medication_index_name,
-                                        medication_codes_query)
+medication_codes_index = generate_index(medication_index_name, medication_codes_query)
 
 # Declare the index name for procedure results
 procedure_index_name = 'procedure_codes'
-
 # Declare the SQL query for procedure records
 procedure_codes_query = 'select * from procedure_codes;'
-
 # Call the generate_index function to create the procedure index
-procedure_codes_index = generate_index(procedure_index_name,
-                                       procedure_codes_query)
+procedure_codes_index = generate_index(procedure_index_name, procedure_codes_query)
 
 # Declare the index name for surgery results
 surgery_index_name = 'surgery_codes'
-
 # Declare the SQL query for surgery records
 surgery_codes_query = 'select * from surgery_codes;'
-
 # Call the generate_index function to create the surgery index
-surgery_codes_index = generate_index(surgery_index_name,
-                                     surgery_codes_query)
+surgery_codes_index = generate_index(surgery_index_name, surgery_codes_query)
 
-# Declare the index name for loinc results
+# Declare the index name for biobank sample results
+biobank_index_name = 'biobank_samples'
+# Declare the SQL query for surgery records
+biobank_samples_query = 'select * from DX_SAMPLE_COUNTS;'
+# Call the generate_index function to create the surgery index
+biobank_samples_index = generate_index(biobank_index_name, biobank_samples_query)
+
+# Unhide if LOINC and SNOMED CT will be used
+""" # Declare the index name for loinc results
 loinc_index_name = 'loinc_codes'
-
 # Declare the SQL query for loinc records
 loinc_codes_query = 'select * from loinc_codes;'
-
 # Call the generate_index function to create the loinc index
-loinc_codes_index = generate_index(loinc_index_name,
-                                   loinc_codes_query)
+loinc_codes_index = generate_index(loinc_index_name, loinc_codes_query)
 
 # Declare the index name for snomedct results
 snomedct_index_name = 'snomedct_codes'
-
 # Declare the SQL query for snomedct records
 snomedct_codes_query = 'select * from snomedct_codes;'
-
 # Call the generate_index function to create the snomedct index
-snomedct_codes_index = generate_index(snomedct_index_name,
-                                      snomedct_codes_query)
-
+snomedct_codes_index = generate_index(snomedct_index_name, snomedct_codes_query) 
+"""
 
 # Function performs search on the input index based on the search_string
 # and returns the query results, number of hits and time in milliseconds for
@@ -139,13 +141,7 @@ def search_index(index):
     hits = search_results.get('nbHits')
     # Extract the time in milliseconds for the query run time
     query_time = search_results.get('processingTimeMs')
-
     return codes, hits, query_time
-
-
-# Create an instance of flask application
-app = Flask(__name__)
-
 
 # Define the method to render content based on the URL path in
 # the route() decorator
@@ -156,21 +152,19 @@ def index():
     codes = []
     hits = None
     query_time = None
-
+    search_string = ''
     # If request method is of type POST, then enter the conditional block
     if request.method == 'POST':
         codes, hits, query_time = search_index(diagnosis_codes_index)
-
+        search_string = request.form.get('search_string')
         # If there is atleast one result, enter the conditional block
         if(len(codes) > 0):
             # Get the first result (zero index) keys of the dictionary and
             # assign it to headers
             headers = codes[0].keys()
-
     # Render the template based on the passed html view and the data elements
     return render_template('index.html', headers=headers, codes=codes,
-                           hits=hits, query_time=query_time)
-
+                           hits=hits, query_time=query_time, search_string=search_string)
 
 # Define the method to render content based on the URL path in
 # the route() decorator
@@ -182,22 +176,20 @@ def labs():
     codes = []
     hits = None
     query_time = None
-
+    search_string = ''
     # If request method is of type POST, then enter the conditional block
     if request.method == 'POST':
         # Call search_index by passing the index name
         codes, hits, query_time = search_index(lab_codes_index)
-
+        search_string = request.form.get('search_string')
         # If there is atleast one result, enter the conditional block
         if(len(codes) > 0):
             # Get the first result (zero index) keys of the dictionary and
             # assign it to headers
             headers = codes[0].keys()
-
     # Render the template based on the passed html view and the data elements
     return render_template('labs.html', headers=headers, codes=codes,
-                           hits=hits, query_time=query_time)
-
+                           hits=hits, query_time=query_time, search_string=search_string)
 
 # Define the method to render content based on the URL path in
 # the route() decorator
@@ -209,22 +201,20 @@ def procedures():
     codes = []
     hits = None
     query_time = None
-
+    search_string = ''
     # If request method is of type POST, then enter the conditional block
     if request.method == 'POST':
         # Call search_index by passing the index name
         codes, hits, query_time = search_index(procedure_codes_index)
-
+        search_string = request.form.get('search_string')
         # If there is atleast one result, enter the conditional block
         if(len(codes) > 0):
             # Get the first result (zero index) keys of the dictionary and
             # assign it to headers
             headers = codes[0].keys()
-
     # Render the template based on the passed html view and the data elements
     return render_template('procedures.html', headers=headers, codes=codes,
-                           hits=hits, query_time=query_time)
-
+                           hits=hits, query_time=query_time, search_string=search_string)
 
 # Define the method to render content based on the URL path in
 # the route() decorator
@@ -236,22 +226,20 @@ def medications():
     codes = []
     hits = None
     query_time = None
-
+    search_string = ''
     # If request method is of type POST, then enter the conditional block
     if request.method == 'POST':
         # Call search_index by passing the index name
         codes, hits, query_time = search_index(medication_codes_index)
-
+        search_string = request.form.get('search_string')
         # If there is atleast one result, enter the conditional block
         if(len(codes) > 0):
             # Get the first result (zero index) keys of the dictionary and
             # assign it to headers
             headers = codes[0].keys()
-
     # Render the template based on the passed html view and the data elements
     return render_template('medications.html', headers=headers, codes=codes,
-                           hits=hits, query_time=query_time)
-
+                           hits=hits, query_time=query_time, search_string=search_string)
 
 # Define the method to render content based on the URL path in
 # the route() decorator
@@ -263,24 +251,22 @@ def surgeries():
     codes = []
     hits = None
     query_time = None
-
+    search_string = ''
     # If request method is of type POST, then enter the conditional block
     if request.method == 'POST':
         # Call search_index by passing the index name
         codes, hits, query_time = search_index(surgery_codes_index)
-
+        search_string = request.form.get('search_string')
         # If there is atleast one result, enter the conditional block
         if(len(codes) > 0):
             # Get the first result (zero index) keys of the dictionary and
             # assign it to headers
             headers = codes[0].keys()
-
     # Render the template based on the passed html view and the data elements
     return render_template('surgeries.html', headers=headers, codes=codes,
-                           hits=hits, query_time=query_time)
+                           hits=hits, query_time=query_time, search_string=search_string)
 
-
-# Define the method to render content based on the URL path in
+""" # Define the method to render content based on the URL path in
 # the route() decorator
 @app.route("/loinc", methods=['GET', 'POST'])
 def loinc():
@@ -290,11 +276,13 @@ def loinc():
     codes = []
     hits = None
     query_time = None
+    search_string = ''
 
     # If request method is of type POST, then enter the conditional block
     if request.method == 'POST':
         # Call search_index by passing the index name
         codes, hits, query_time = search_index(loinc_codes_index)
+        search_string = request.form.get('search_string')
 
         # If there is atleast one result, enter the conditional block
         if(len(codes) > 0):
@@ -304,8 +292,7 @@ def loinc():
 
     # Render the template based on the passed html view and the data elements
     return render_template('loinc.html', headers=headers, codes=codes,
-                           hits=hits, query_time=query_time)
-
+                           hits=hits, query_time=query_time, search_string=search_string)
 
 # Define the method to render content based on the URL path in
 # the route() decorator
@@ -317,11 +304,13 @@ def snomedct():
     codes = []
     hits = None
     query_time = None
+    search_string = ''
 
     # If request method is of type POST, then enter the conditional block
     if request.method == 'POST':
         # Call search_index by passing the index name
         codes, hits, query_time = search_index(snomedct_codes_index)
+        search_string = request.form.get('search_string')
 
         # If there is atleast one result, enter the conditional block
         if(len(codes) > 0):
@@ -331,8 +320,36 @@ def snomedct():
 
     # Render the template based on the passed html view and the data elements
     return render_template('snomedct.html', headers=headers, codes=codes,
-                           hits=hits, query_time=query_time)
+                           hits=hits, query_time=query_time, search_string=search_string)
+ """
 
+# Define the method to render content based on the URL path in
+# the route() decorator
+@app.route("/biobank", methods=['GET', 'POST'])
+def biobank():
+    # Initialize the values for headers, codes, search_string,
+    # hits and query_time variables
+    headers = []
+    codes = []
+    hits = None
+    query_time = None
+    biobank_sample_counts_headers = biobank_sample_counts[0].keys()
+    search_string = ''
+    # If request method is of type POST, then enter the conditional block
+    if request.method == 'POST':
+        # Call search_index by passing the index name
+        codes, hits, query_time = search_index(biobank_samples_index)
+        search_string = request.form.get('search_string')
+        # If there is atleast one result, enter the conditional block
+        if(len(codes) > 0):
+            # Get the first result (zero index) keys of the dictionary and
+            # assign it to headers
+            headers = codes[0].keys()
+    # Render the template based on the passed html view and the data elements
+    return render_template('biobank_samples.html', headers=headers, codes=codes,
+                           hits=hits, query_time=query_time, search_string=search_string,
+                           biobank_sample_counts_headers=biobank_sample_counts_headers,
+                           biobank_sample_counts=biobank_sample_counts)
 
 # Define the method to render content based on the URL path in
 # the route() decorator
@@ -341,10 +358,8 @@ def export_records():
     # Initialize the values for query_results and results_array
     query_results = None
     results_array = []
-
     # Get the query_results from previously rendered view
     query_results = request.form.get('query_results')
-
     # The query_results are obtained in the form of plain string and it should
     # be converted into JSON string and then to a list of python dictionaries
     query_results = query_results.replace("{\'", "{\"")
@@ -357,12 +372,11 @@ def export_records():
 
     # Parse the JSON string into a list of dictionaries
     results_array = json.loads(query_results)
-
+    #print(results_array)
     # Return the CSV file from resultant list of dictionaries
-    return excel.make_response_from_records(results_array, "csv",
+    return excel.make_response_from_records(results_array, "xlsx",
                                             file_name="export_data")
 
 # Initialize the flask_excel and run the flask application
 if __name__ == "__main__":
-    excel.init_excel(app)
     app.run(debug=True)
